@@ -1,156 +1,313 @@
-# AI-Driven-PHC-Supply-Chain-Optimization-for-Essential-Medicines
-1. This project develops an AI-driven forecasting and inventory optimization engine designed for Primary Healthcare (PHC) medicine supply chains. It predicts SKU-level demand, calculates optimal reorder points, reduces expiry-related wastage, and provides real-time visibility into stock risk.
-2. Why This Matters
+1) Core Problem Statement (Upgraded to NHSRC Reality)
 
-PHCs still rely heavily on manual registers, inconsistent reporting, and fragmented cold-chain visibility.
-The consequences are systemic:
+Primary Health Centres (PHCs) across India struggle with:
 
-Frequent stockouts of essential medicines
+Unpredictable demand
 
-20–40% preventable wastage due to expiry
+20–40% avoidable wastage from expiry
 
-Delayed resupply and unpredictable lead times
+Irregular physical stock verification
 
-No early warning for demand surges (outbreaks, seasonality)
+Duplicate or inconsistent entries in registers
 
-This project demonstrates how PHCs can shift from reactive replenishment to predictive, resilient, and equitable supply systems.
+No automated Reorder Level (ROL) alerts
 
-3. What This System Delivers
-✔ SKU-Level Demand Forecasting (14–30 days)
+Lack of FEFO compliance
 
-Daily consumption prediction using time-series + ML models.
+Manual calculations for buffer and safety stock
 
-✔ Automated Reorder Point (ROP) Calculation
+Non-moving (FSN) inventory choking storage
 
-Dynamic ROP using lead time variability + safety stock modeling.
+No visibility on cold chain breaches
 
-✔ Expiry-Aware Inventory Optimization
+This results in stockouts of Vital drugs, wastage of Desirable items, and inefficient ordering of Essential medicines.
 
-Rotation logic for reducing avoidable wastage.
+The current system is reactive, not predictive.
+Your project fixes this.
 
-✔ Shrinkage / Anomaly Detection
+2) What This System Does (NHSRC-Integrated)
 
-Detects abnormal consumption patterns (theft, misreporting, wastage spikes).
+This system builds a complete digital brain for PHC inventory control:
 
-✔ Power BI Dashboard for PHC Managers
+✔ A. Demand Forecasting (14–30 Days)
 
-Visibility into:
+Forecast per-medicine daily consumption
 
-stock on hand
+Incorporates seasonality, admissions data, and FSN behavior
 
-predicted shortages
+✔ B. NHSRC-Compliant Inventory Control Logic
 
-days of cover
+Implements REAL PHC formulas (not generic ML formulas):
 
-shipment delays
+ADC = Total consumption / Number of days
 
-expiry risk
+ROL = Max Daily Consumption × Max Lead Time + Safety Stock
 
-✔ Backtested Impact Simulation
+MSL = ROL – (ADC × Avg Lead Time)
 
-Demonstrates improvements in:
+Total Estimated Demand = (ADC × Days) + (LT × ADC) + Buffer – Stock
 
-stockout reduction
+✔ C. VED Classification Engine
 
-wastage reduction
+Vital → zero tolerance for stockouts → high safety stock
 
-service levels
+Essential → optimized ROP
 
-average days of inventory
+Desirable → low ROP, expiry monitoring
 
-4. System Workflow (High-Level Architecture)
+✔ D. FSN Classification Engine
 
-Data ingestion: Stock registers, consumption logs, GRN/indent data (Spark / Python).
+Based on consumption velocity:
 
-Data cleaning: Handling missing entries, lead time estimation, batch expiry mapping.
+Fast → high buffer
 
-Feature engineering: Lag windows, rolling demand, seasonal flags, supplier reliability.
+Slow → routine review
 
-Forecasting layer: Prophet/ARIMA + LightGBM ensemble.
+Non-moving → expiry risk + redistribution
 
-Inventory optimization:
+✔ E. FEFO Expiry Surveillance
 
-ROP = μ(lead-time demand) + zσ
+Predict which batches will expire in the next 180 / 90 / 30 days
+Recommend redistribution across PHCs.
 
-fixed or variable order quantity
+✔ F. Pilferage & Data Quality Anomaly Detection
 
-Anomaly detection: Isolation Forest on consumption residuals.
+Detects:
 
-Dashboard: Power BI refresh via scheduled pipeline (ADF/Airflow).
+duplicate entries
 
-Monitoring: MAE drift, stockout trend, wastage trend, anomaly alerts.
+mismatched opening–closing stocks
 
-5. Alignment with PATH’s ICPHC-2025 Vision
-A. Predictive Control > Reactive Protocols
+unexplained consumption spikes
 
-Forecasts shortages before they occur.
+zero-issue days with falling stock
 
-Automates ROP for uninterrupted medicine availability.
+disposal without entry
 
-Flags consumption anomalies before shrinkage escalates.
+fake stock updates
 
-B. Reduction of Wastage & Expiry
+✔ G. Cold-Chain Risk Modeling
 
-Batch-expiry–aware rotation logic.
+Temperature breach → risk score → expiry acceleration.
 
-Lead-time optimization.
+✔ H. PHC Dashboard (Power BI)
 
-Forecast-informed ordering reduces overstocking.
+Metrics include:
 
-C. Digitized Last-Mile Visibility
+VED stockout risk
 
-Dashboard provides real-time facility-level status.
+FEFO compliance
 
-Highlights high-risk SKUs and wards.
+FSN distribution
 
-Supports multilingual or mobile workflows.
+NHSRC ROL vs AI ROP
 
-D. Climate- & System-Resilient Supply Chains
+Near expiry alerts
 
-Incorporates:
+Pilferage risk index
 
-temperature excursions (cold-chain)
+Lead-time variability
 
-supplier delays
+Facility performance ranking
 
-seasonal surges
+3) Final Architecture
 
-epidemic/outbreak effects
+🟦 A. Ingestion Layer
 
-transportation disruptions
+Facility stock registers
 
-6. Sample Metrics (Simulated / Preliminary)
+Daily issue-entry registers
 
-You MUST include numbers (even simulated) or the project looks academic.
+Supplier GRNs
 
-Use this format:
+Batch & expiry data
 
-18% reduction in simulated stockouts
+PHC admissions
 
-12% reduction in expiry-driven wastage
+DVDMS/e-Aushadhi endpoints
 
-Forecast MAE improvement of 27% vs naive seasonal baseline
+Cold-chain temp logs
 
-Service level improved from 82% → 94%
+🟩 B. Processing Layer
 
-Average inventory days reduced by 15%
+Cleaning
 
-These can be updated as your model improves.
+Drug name standardization (NLP)
 
-7. Repository Structure
-/data/               → sample + synthetic PHC datasets  
-/notebooks/          → EDA, forecasting, ROP, anomaly detection  
-/src/                → modeling scripts  
-/dashboard/          → PowerBI files + screenshots  
-/docs/               → architecture diagram, EDA summary  
-models/              → saved models + metadata  
+FSN → consumption velocity
 
-8. Roadmap
+VED → priority classification
 
-Add outbreak-demand modeling (dengue/flu seasonality).
+FEFO → expiry horizon
 
-Add geographic clustering of PHCs.
+🟧 C. Modeling Layer
 
-Add supplier reliability scoring.
+Forecasting (Prophet + LightGBM)
 
-Add live API for PHC dashboard integration.
+ROP calculator (NHSRC + ML hybrid)
+
+Expiry probability model
+
+Pilferage anomaly model
+
+Redistribution recommendation model
+
+🟨 D. Orchestration
+
+Airflow/ADF DAG: ingest → clean → classify → forecast → optimize → alert
+
+🟥 E. Serving Layer
+
+Model artifacts
+
+Power BI refreshable datasets
+
+Alerts (SMS/Email/WhatsApp hooks)
+
+API endpoints if needed
+
+4) Final Data Schema
+Medicine_Master:
+medicine_id  
+medicine_name  
+unit  
+strength  
+VED_category     # Vital / Essential / Desirable  
+FSN_category     # Fast / Slow / Non-moving  
+storage_type      # cold-chain / room / controlled  
+
+Inventory_Transactions:
+date  
+facility_id  
+medicine_id  
+opening_stock  
+received_qty  
+issued_qty  
+closing_stock  
+batch_no  
+expiry_date  
+supplier_id  
+temperature excursion flag  
+
+Forecasting_Input
+ADC  
+Max daily consumption  
+Avg daily consumption  
+Avg lead time  
+Max lead time  
+Safety stock  
+ROL (NHSRC formula)  
+MSL  
+Buffer stock days  
+
+Quality Flags
+duplicate_entry_flag  
+pilferage_risk_flag  
+near_expiry_flag  
+non_moving_flag  
+physical_mismatch_flag  
+temperature_excursion_flag  
+
+5) Notebook Structure
+
+01_EDA.ipynb
+
+Basic exploration + NHSRC indicators:
+
+VED distribution
+
+FSN velocity curves
+
+Expiry horizon distribution
+
+02_CLEANING_STANDARDIZATION.ipynb
+
+drug name normalization
+
+missing stock adjustment
+
+duplicate entry detection
+
+03_FEATURE_ENGINEERING_NHSRC.ipynb
+
+ADC
+
+daily consumption velocity
+
+FSN classification
+
+FEFO horizon
+
+lead-time modeling
+
+04_FORECASTING_BASELINES.ipynb
+
+ARIMA/ETS and seasonal naive.
+
+05_FORECASTING_ML.ipynb
+
+LightGBM/Prophet hybrid model.
+
+06_ROP_CALCULATOR_NHSRC.ipynb
+
+Implement official formulas + ML correction.
+
+07_EXPIRY_MODEL_FEFO.ipynb
+
+Predict probability of expiry in next 180/90/30 days.
+
+08_PILFERAGE_MODEL.ipynb
+
+Anomaly detection using:
+
+entry mismatch
+
+sudden drops
+
+duplicate names
+
+09_REDISPATCH_RECOMMENDER.ipynb
+
+Suggest PHC-to-PHC redistribution to avoid expiry.
+
+10_DASHBOARD_DATA_PREP.ipynb
+
+Prepare output files for Power BI.
+
+6) Final Dashboard KPIs (NHSRC-Compliant)
+
+Include these visuals:
+
+🔴 Stockout Risk (VED segmented)
+
+Vital | Essential | Desirable
+Predicted shortage date | Days of stock
+
+🟡 Expiry Risk (FEFO)
+
+180-day
+90-day
+30-day
+Batch visualizations
+
+🔵 FSN Analysis
+
+Pie chart + trend
+Top non-moving items
+
+🟣 Lead-Time Variability
+
+Supplier reliability curve
+Avg LT vs Max LT
+ROP risk
+
+🟤 Pilferage Risk
+
+Score heatmap
+Suspicious facilities
+Mismatch logs
+
+🟥 NHSRC ROL vs AI ROP
+
+Comparison table
+AI savings vs traditional policy
