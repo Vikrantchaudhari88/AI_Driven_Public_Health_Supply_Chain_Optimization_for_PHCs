@@ -1,0 +1,48 @@
+flowchart TD
+  subgraph Ingest["Data Ingestion"]
+    A1[Facility Logs / Stock Registers (CSV/Excel)]
+    A2[Supplier GRNs / Shipments (CSV/API)]
+    A3[Admission & Service Data]
+    A4[External: Weather / Holidays / Govt Open Data]
+  end
+
+  subgraph Storage["Landing / Storage"]
+    B1[Raw Parquet / HDFS / Blob Storage]
+    B2[Cleaned Parquet / Delta / Partitioned by date, facility, sku]
+  end
+
+  subgraph Processing["Processing & Modeling"]
+    C1[Spark ETL / PySpark jobs]
+    C2[Feature Store (daily SKU aggregates)]
+    C3[Modeling: Prophet / LightGBM / Ensemble]
+    C4[Anomaly Detection: IsolationForest]
+    C5[ROP calculator + Simulator]
+  end
+
+  subgraph Orchestration["Orchestration"]
+    D1[Airflow / ADF DAGs (daily ingest, train, score)]
+  end
+
+  subgraph Serving["Serving & Dashboard"]
+    E1[Model Artifacts (S3/Blob + MLflow)]
+    E2[Scoring CSV / REST API]
+    E3[Power BI Dashboard]
+    E4[Alerts (email / Teams / SMS)]
+  end
+
+  A1 --> B1
+  A2 --> B1
+  A3 --> B1
+  A4 --> B1
+  B1 --> C1
+  C1 --> B2
+  B2 --> C2
+  C2 --> C3
+  C2 --> C4
+  C3 --> E1
+  E1 --> D1
+  D1 --> C3
+  C3 --> E2
+  E2 --> E3
+  C4 --> E4
+  D1 --> E2
