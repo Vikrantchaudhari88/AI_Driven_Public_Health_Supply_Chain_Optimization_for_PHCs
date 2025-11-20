@@ -1,4 +1,4 @@
-1) Core Problem Statement (Upgraded to NHSRC Reality)
+1) Core Problem Statement
 
 Primary Health Centres (PHCs) across India struggle with:
 
@@ -25,7 +25,7 @@ This results in stockouts of Vital drugs, wastage of Desirable items, and ineffi
 The current system is reactive, not predictive.
 Your project fixes this.
 
-2) What This System Does (NHSRC-Integrated)
+2) What This System Does
 
 This system builds a complete digital brain for PHC inventory control:
 
@@ -167,6 +167,7 @@ Alerts (SMS/Email/WhatsApp hooks)
 API endpoints if needed
 
 4) Final Data Schema
+
 Medicine_Master:
 medicine_id  
 medicine_name  
